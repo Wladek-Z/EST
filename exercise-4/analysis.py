@@ -53,14 +53,14 @@ def plot_convergence(filename):
     # find meV tolerance in Ry 
     tol_10meV = 10 / 13605.6931229947  # 10 meV in Ry
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
+    tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
 
-    plt.plot(Ec, dE, marker='o', color='b', label='MT PP')
-    plt.axhline(y=tol_10meV, color='r', linestyle='--', label='10 meV')
-    plt.axhline(y=tol_1meV, color='g', linestyle='--', label='1 meV')
+    plt.plot(Ec, dE, marker='o', color='b', label=r'$\alpha$-Sn')
+    plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
+    #plt.axhline(y=tol_1meV, color='g', linestyle='--', label='1 meV')
     plt.yscale('log')
     plt.xlabel(r'$E_c$ [Ry]')
     plt.ylabel(r'$\Delta E$ [Ry]')
-    #plt.title('Convergence of Total Energy for Ultrasoft PP')
     plt.legend()
     plt.xticks(Ec[::2])
     plt.grid()
@@ -68,5 +68,5 @@ def plot_convergence(filename):
 
 
 if __name__ == "__main__":
-    filename = "mt-energies.txt"
+    filename = "a-energies.txt"
     plot_convergence(filename)

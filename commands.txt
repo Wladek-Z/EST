@@ -1,8 +1,14 @@
 # log in to Archer2
 ssh -Y ta218zawa1@login.archer2.ac.uk
 
+# move to est-course in work directory
+cd ../../../../../work/ta218/ta218/ta218zawa1/est-course/
+
 # copy file to current directory
-cp -r /home/ta218/ta218/shared/input_files/Exercise-4 exercise-4
+cp -r /home/ta218/ta218/shared/input_files/Folder folder
 
 # secure copy to own device
 scp ta218zawa1@login.archer2.ac.uk:/path/goes/here .
+
+# grep the data
+grep "!    total energy" *.out > x-energies.txt
