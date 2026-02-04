@@ -62,7 +62,7 @@ def plot_convergence(filename):
     plt.xlabel(r'$E_c$ [Ry]')
     plt.ylabel(r'$\Delta E$ [Ry]')
     plt.legend()
-    plt.xticks(Ec[::2])
+    plt.xticks(Ec[::4])
     plt.grid()
     plt.show()
 
@@ -91,7 +91,7 @@ def energy_diff(file1, file2):
     plt.yscale('log')
     plt.xlabel(r'$E_c$ [Ry]')
     plt.ylabel(r'$|E_{\alpha} - E_{\beta}|$ [Ry]')
-    plt.xticks(Ec1[::2])
+    plt.xticks(Ec1[::4])
     plt.grid()
     plt.show()
 
