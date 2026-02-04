@@ -55,7 +55,7 @@ def plot_convergence(filename):
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
 
-    plt.plot(Ec, dE, marker='o', color='b', label=r'$\alpha$-Sn')
+    plt.plot(Ec, dE, marker='o', color='b', label=r'$\beta$-Sn')
     plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
     #plt.axhline(y=tol_1meV, color='g', linestyle='--', label='1 meV')
     plt.yscale('log')
@@ -81,21 +81,22 @@ def energy_diff(file1, file2):
     if not np.array_equal(Ec1, Ec2):
         raise ValueError("Cutoff energies do not match between the two datasets.")
 
-    dE = Et1 - Et2
-    tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
+    dE1 = np.abs(Et1 - Et2)
+    dE = np.abs(dE1 - dE1[-1])
+    tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     
     plt.plot(Ec1, dE, marker='o', color='b', label=r'$\Delta E$')
-    plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
+    plt.axhline(y=dE[-1]+tol_1meV, color='r', linestyle='--', label='1 meV')
     plt.legend()
+    plt.yscale('log')
     plt.xlabel(r'$E_c$ [Ry]')
-    plt.ylabel(r'$E_{\alpha} - E_{\beta}$ [Ry]')
+    plt.ylabel(r'$|E_{\alpha} - E_{\beta}|$ [Ry]')
     plt.xticks(Ec1[::2])
     plt.grid()
     plt.show()
 
 
-
 if __name__ == "__main__":
     filename1 = "a-energies.txt"
     filename2 = "b-energies.txt"
-    plot_convergence(filename1)
+    energy_diff(filename1, filename2)
