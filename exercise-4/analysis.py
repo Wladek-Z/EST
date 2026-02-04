@@ -66,7 +66,36 @@ def plot_convergence(filename):
     plt.grid()
     plt.show()
 
+def energy_diff(file1, file2):
+    """
+    Compute the difference in total energy between two datasets.
+
+    Args:
+        file1: first energy data file
+        file2: second energy data file
+    """
+    Ec1, Et1 = read_energies(file1)
+    Ec2, Et2 = read_energies(file2)
+
+    # Ensure both datasets have the same cutoff energies for comparison
+    if not np.array_equal(Ec1, Ec2):
+        raise ValueError("Cutoff energies do not match between the two datasets.")
+
+    dE = Et1 - Et2
+    tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
+    
+    plt.plot(Ec1, dE, marker='o', color='b', label=r'$\Delta E$')
+    plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
+    plt.legend()
+    plt.xlabel(r'$E_c$ [Ry]')
+    plt.ylabel(r'$E_{\alpha} - E_{\beta}$ [Ry]')
+    plt.xticks(Ec1[::2])
+    plt.grid()
+    plt.show()
+
+
 
 if __name__ == "__main__":
-    filename = "a-energies.txt"
-    plot_convergence(filename)
+    filename1 = "a-energies.txt"
+    filename2 = "b-energies.txt"
+    plot_convergence(filename1)
