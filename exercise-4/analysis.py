@@ -39,7 +39,7 @@ def read_energies(filename, pos=-2):
     return numbers, outputs
 
 
-def plot_convergence(filename, pos=-2):
+def plot_convergence(filename, pos=-2, name='alpha'):
     """
     Plot the change in total energy with respect to the last value as a function of
     cutoff energy to find convergence.
@@ -58,15 +58,15 @@ def plot_convergence(filename, pos=-2):
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
 
-    plt.plot(x, dy, marker='o', color='b', label='US PP')
-    #plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
-    plt.axhline(y=tol_1meV, color='r', linestyle='--', label='1 meV')
+    plt.plot(x, dy, marker='o', color='b', label=fr'$\{name}$-Sn')
+    plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
+    #plt.axhline(y=tol_1meV, color='r', linestyle='--', label='1 meV')
     plt.yscale('log')
-    plt.xlabel('k-point grid size')
-    #plt.ylabel(r'$\Delta E$ [Ry]')
-    plt.ylabel('k-points used')
+    plt.xlabel(r'$E_c$ [Ry]')
+    plt.ylabel(r'$\Delta E$ [Ry]')
+    #plt.ylabel('k-points used')
     plt.legend()
-    plt.xticks(x[::2])
+    #plt.xticks(x[::4])
     plt.grid()
     plt.show()
 
@@ -117,13 +117,15 @@ def energy_diff(file1, file2, pos=-2):
     plt.yscale('log')
     plt.xlabel(r'$E_c$ [Ry]')
     plt.ylabel(r'$|E_{\alpha} - E_{\beta}|$ [Ry]')
-    plt.xticks(Ec1[::4])
+    #plt.xticks(Ec1[::4])
     plt.grid()
     plt.show()
 
 
 if __name__ == "__main__":
-    filename1 = "KQ-points.txt"
-    filename2 = "KSn-points.txt"
-    k_plot(filename1, filename2)
+    filename1 = "A-energies.txt"
+    filename2 = "B-energies.txt"
+    plot_convergence(filename1, name='alpha')
+    plot_convergence(filename2, name='beta')
+    energy_diff(filename1, filename2)
     
