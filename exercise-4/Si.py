@@ -36,10 +36,8 @@ def make_data(filename1, filename2):
     energies = energies[sorted_indices]
 
     lattice = lattice * 0.529177210903                   # convert to Angstroms
-    volumes = lattice**3
-
-    energies = energies * 13.6056931229947 * 1.60218e-19 # convert to Joules
-    
+    volumes = lattice**3                                 # volume of unit cell
+                                                         # note: 8 atoms per unit cell
     # write data to file 2
     df = pd.DataFrame({
         "Volume": volumes,
@@ -48,52 +46,128 @@ def make_data(filename1, filename2):
 
     df.to_csv(filename2, index=False, header=True)
 
-def curve_fit_data(filename1, filename2):
+def fit_Murnaghan(filename1):
     """
-    Read energies as volumes from file, then fit 3 different equations of state to the data and
-    write the fitted data to new files for subsequent plotting.
+    Read energies as volumes from file, then fit the Murnaghan equation of state to the data and
+    write the parameters to a file for subsequent plotting.
 
     Arguments:
         filename1: Path to the input file
-        filename2: Path to the output file containing each fit's parameters
     """
     data = pd.read_csv(filename1)
     V = data["Volume"].values
     E = data["Energy"].values
 
-    V = V * 1e-30 # convert to m^3
-
-    df = pd.DataFrame(index=["Murnaghan", "Birch-Murnaghan", "Vinet"], columns=["E0", "V0", "B0", "B0_prime"])
-    
-    p0 = [-19.19270234 * 13.6056931229947 * 1.60218e-19, 20**3 * 1e-30, 100e9, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-19.19270234, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Murnaghan EOS
-    popt_murn, _ = curve_fit(murnaghan, V, E, p0=p0, maxfev=1000000)
-    df.loc["Murnaghan"] = popt_murn
+    popt_murn, _ = curve_fit(murnaghan, V, E, p0=p0, maxfev=100000, bounds=([-100, 1, 0, 0], [0, 400, 1, 10]))
+    df = pd.DataFrame([popt_murn], columns=["E0", "V0", "B0", "B0_prime"])
+    
+    df.to_csv("Murnaghan_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
 
-    # Fit Birch-Murnaghan EOS
-    popt_birch, _ = curve_fit(birch_murnaghan, V, E, p0=p0, maxfev=1000000)
-    df.loc["Birch-Murnaghan"] = popt_birch
-
-    # Fit Vinet EOS
-    popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=1000000)
-    df.loc["Vinet"] = popt_vinet
-
-    df.to_csv(filename2, index=True, header=True) # units: m^3 and J
+    plot_EOS(filename1, "Murnaghan_params.txt")
 
 
 def murnaghan(V, E0, V0, B0, B0_prime):
     eta = (V / V0)**(1 / 3)
     return E0 + (B0 * V / B0_prime) * eta**3 * (eta**(- 3 * B0_prime) / (B0_prime - 1) + 1) - (B0 * V0 / (B0_prime - 1))
 
+def fit_Birch(filename1):
+    """
+    Read energies as volumes from file, then fit the Birch-Murnaghan equation of state to the data and
+    write the parameters to a file for subsequent plotting.
+
+    Arguments:
+        filename1: Path to the input file
+    """
+    data = pd.read_csv(filename1)
+    V = data["Volume"].values
+    E = data["Energy"].values
+
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-19.19270234, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+
+    # Fit Birch-Murnaghan EOS
+    popt_birch, _ = curve_fit(birch_murnaghan, V, E, p0=p0, maxfev=100000, bounds=([-100, 1, 0, 0], [0, 400, 1, 10]))
+    df = pd.DataFrame([popt_birch], columns=["E0", "V0", "B0", "B0_prime"])
+
+    df.to_csv("Birch_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
+
+    plot_EOS(filename1, "Birch_params.txt")
+
+
 def birch_murnaghan(V, E0, V0, B0, B0_prime):
     eta = (V / V0)**(1 / 3)
     return E0 + (9 * B0 * V0 / 16) * ((eta**(- 2) - 1)**3 * B0_prime + (eta**(- 2) - 1)**2 * (6 - 4 * eta**(- 2)))
+
+def fit_Vinet(filename1):
+    """
+    Read energies as volumes from file, then fit the Vinet equation of state to the data and
+    write the parameters to a file for subsequent plotting.
+
+    Arguments:
+        filename1: Path to the input file
+    """
+    data = pd.read_csv(filename1)
+    V = data["Volume"].values
+    E = data["Energy"].valuesbounds=([-100, 1, 0, 0], [0, 400, 1, 10])
+
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-19.19270234, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+
+    # Fit Vinet EOS
+    popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000, bounds=([-100, 1, 0, 0], [0, 400, 1, 10]))
+    df = pd.DataFrame([popt_vinet], columns=["E0", "V0", "B0", "B0_prime"])
+    
+    df.to_csv("Vinet_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
+
+    plot_EOS(filename1, "Vinet_params.txt")
+
 
 def vinet(V, E0, V0, B0, B0_prime):
     eta = (V / V0)**(1 / 3)
     return E0 + (4 * B0 * V0 / (B0_prime - 1)**2) + (2 * B0 * V0 / (B0_prime - 1)**2) * np.exp(1.5 * (B0_prime - 1) * (1 - eta)) * (3 * (B0_prime - 1) * (1 - eta) - 2)
 
 
+def plot_EOS(filename1, filename2):
+    """
+    Plot one of the fitted equations of state along with the original data points.
+    
+    Arguments:
+        filename1: Path to the file containing the original data points
+        filename2: Path to the file containing the fitted parameters
+    """
+
+    data1 = pd.read_csv(filename1)
+    V     = data1["Volume"].values
+    E     = data1["Energy"].values
+
+    data2    = pd.read_csv(filename2)
+    E0       = data2["E0"].values[0]
+    V0       = data2["V0"].values[0]
+    B0       = data2["B0"].values[0]
+    B0_prime = data2["B0_prime"].values[0]
+
+    if "Murnaghan" in filename2:
+        E_fit = murnaghan(V, E0, V0, B0, B0_prime)
+        label = "Murnaghan EOS"
+    elif "Birch" in filename2:
+        E_fit = birch_murnaghan(V, E0, V0, B0, B0_prime)
+        label = "Birch-Murnaghan EOS"
+    elif "Vinet" in filename2:
+        E_fit = vinet(V, E0, V0, B0, B0_prime)
+        label = "Vinet EOS"
+
+    plt.plot(V, E, 'o', label='Data points')
+    plt.plot(V, E_fit, label=label)
+    plt.xlabel(r'Volume [$\AA^3$]')
+    plt.ylabel(r'Energy [Ry]')
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
-    curve_fit_data("Si_AJ.txt", "parameters2.txt")
+    filename1 = "Si-RyA.txt"
+    fit_Birch(filename1)
