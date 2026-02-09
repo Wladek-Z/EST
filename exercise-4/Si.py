@@ -55,15 +55,14 @@ def fit_Murnaghan(filename1):
         filename1: Path to the input file
     """
     data = pd.read_csv(filename1)
-    V = data["Volume"].values
+    V = data["Volume"].values 
     E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
-    V0_trial = (5.4309)**3
-    p0 = [-19.19270380, V0_trial, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3, via energy per atom
+    p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Murnaghan EOS
-    popt_murn, _ = curve_fit(murnaghan, V, E, p0=p0, maxfev=100000)#, bounds=([-100, 1, 1e-4, 0], [0, 400, 1, 10]))
+    popt_murn, _ = curve_fit(murnaghan, V, E, p0=p0, maxfev=100000)
     df = pd.DataFrame([popt_murn], columns=["E0", "V0", "B0", "B0_prime"])
     
     df.to_csv("Murnaghan_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
@@ -73,7 +72,7 @@ def fit_Murnaghan(filename1):
 
 def murnaghan(V, E0, V0, B0, B0_prime):
     eta = (V / V0)**(1 / 3)
-    return E0 + (B0 * V / B0_prime) * eta**3 * (eta**(- 3 * B0_prime) / (B0_prime - 1) + 1) - (B0 * V0 / (B0_prime - 1))
+    return E0 + (B0 * V0 / B0_prime) * eta**3 * (eta**(- 3 * B0_prime) / (B0_prime - 1) + 1) - (B0 * V0 / (B0_prime - 1))
 
 def fit_Birch(filename1):
     """
@@ -87,11 +86,11 @@ def fit_Birch(filename1):
     V = data["Volume"].values
     E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3
     p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Birch-Murnaghan EOS
-    popt_birch, _ = curve_fit(birch_murnaghan, V, E, p0=p0, maxfev=100000, bounds=([-100, 1, 1e-4, 0], [0, 400, 1, 10]))
+    popt_birch, _ = curve_fit(birch_murnaghan, V, E, p0=p0, maxfev=100000)
     df = pd.DataFrame([popt_birch], columns=["E0", "V0", "B0", "B0_prime"])
 
     df.to_csv("Birch_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
@@ -113,13 +112,13 @@ def fit_Vinet(filename1):
     """
     data = pd.read_csv(filename1)
     V = data["Volume"].values
-    E = data["Energy"].valuesbounds=([-100, 1, 0, 0], [0, 400, 1, 10])
+    E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3
     p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Vinet EOS
-    popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000, bounds=([-100, 1, 1e-4, 0], [0, 400, 1, 10]))
+    popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000)
     df = pd.DataFrame([popt_vinet], columns=["E0", "V0", "B0", "B0_prime"])
     
     df.to_csv("Vinet_params.txt", index=False, header=True) # units: Rydbergs and Angstroms
@@ -173,22 +172,25 @@ def convert(filename1, filename2, filename3):
     data1 = pd.read_csv(filename1)
     E01      = data1["E0"].values[0]
     V01      = data1["V0"].values[0] / 8 # volume per atom
-    B01      = data1["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    B01      = data1["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime1= data1["B0_prime"].values[0]
 
     data2 = pd.read_csv(filename2)
     E02      = data2["E0"].values[0]
     V02      = data2["V0"].values[0] / 8 # volume per atom
-    B02      = data2["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    B02      = data2["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime2= data2["B0_prime"].values[0]
 
     data3 = pd.read_csv(filename3)
     E03      = data3["E0"].values[0]
     V03      = data3["V0"].values[0] / 8 # volume per atom
-    B03      = data3["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    B03      = data3["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime3= data3["B0_prime"].values[0]
 
-    df = pd.DataFrame(index = ["Murnaghan", "Birch-Murnaghan", "Vinet"], columns=["E0 [Ry]", "V0 [A^3]", "B0 [GPa]", "B0'"])
+    df = pd.DataFrame(index = ["Murnaghan", "Birch-Murnaghan", "Vinet"], columns=["E0 [Ry/atom]", "V0 [A^3/atom]", "B0 [GPa]", "B0'"])
+    df.loc["Murnaghan"] = [E01, V01, B01, B0_prime1]
+    df.loc["Birch-Murnaghan"] = [E02, V02, B02, B0_prime2]
+    df.loc["Vinet"] = [E03, V03, B03, B0_prime3]
     df.to_csv("EOS_parameters_converted.txt", index=False, header=True)
 
 def plot_4(filename1, filename2, filename3, filename4):
@@ -219,31 +221,34 @@ def plot_4(filename1, filename2, filename3, filename4):
     E_2 = birch_murnaghan(V, E0_2, V0_2, B0_2, B0_prime_2)
     E_3 = vinet(V, E0_3, V0_3, B0_3, B0_prime_3)
 
-    fig, ax = plt.subplots(2, 2, figsize=(12, 10))
-    ax[0, 0].plot(V, E, 'o', label='QE data')
-    ax[0, 0].set_xlabel(r'Volume [$\AA^3$]')
+    fig, ax = plt.subplots(2, 2, figsize=(12, 10), sharex='col', sharey='row')
+
+    ax[0, 0].plot(V, E, '.', label='QE data')
     ax[0, 0].set_ylabel(r'Energy [Ry]')
     ax[0, 0].legend()
 
+    ax[0, 1].plot(V, E, '.', label='QE data')
     ax[0, 1].plot(V, E_1, color='red', label='Murnaghan')
-    ax[0, 1].set_xlabel(r'Volume [$\AA^3$]')
-    ax[0, 1].set_ylabel(r'Energy [Ry]')
     ax[0, 1].legend()
 
-    ax[1, 0].plot(V, E_2, color='orange',label='Birch-Murnaghan')
+    ax[1, 0].plot(V, E, '.', label='QE data')
+    ax[1, 0].plot(V, E_2, color='red',label='Birch-Murnaghan')
     ax[1, 0].set_xlabel(r'Volume [$\AA^3$]')
     ax[1, 0].set_ylabel(r'Energy [Ry]')
     ax[1, 0].legend()
 
-    ax[1, 1].plot(V, E_3, color='green', label='Vinet')
+    ax[1, 1].plot(V, E, '.', label='QE data')
+    ax[1, 1].plot(V, E_3, color='red', label='Vinet')
     ax[1, 1].set_xlabel(r'Volume [$\AA^3$]')
-    ax[1, 1].set_ylabel(r'Energy [Ry]')
     ax[1, 1].legend()
 
     plt.tight_layout()
     plt.show()
 
+
 if __name__ == "__main__":
     filename1 = "Si-RyA.txt"
     filename2 = "Murnaghan_params.txt"
-    fit_Murnaghan(filename1)
+    filename3 = "Birch_params.txt"
+    filename4 = "Vinet_params.txt"
+    convert(filename2, filename3, filename4)
