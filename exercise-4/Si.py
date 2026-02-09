@@ -224,31 +224,82 @@ def plot_4(filename1, filename2, filename3, filename4):
     fig, ax = plt.subplots(2, 2, figsize=(12, 10), sharex='col', sharey='row')
 
     ax[0, 0].plot(V, E, '.', label='QE data')
-    ax[0, 0].set_ylabel(r'Energy [Ry]')
-    ax[0, 0].legend()
+    ax[0, 0].set_ylabel(r'Energy [Ry]', fontsize=16)
+    ax[0, 0].legend(fontsize=12)
 
     ax[0, 1].plot(V, E, '.', label='QE data')
     ax[0, 1].plot(V, E_1, color='red', label='Murnaghan')
-    ax[0, 1].legend()
+    ax[0, 1].legend(fontsize=12)
 
     ax[1, 0].plot(V, E, '.', label='QE data')
     ax[1, 0].plot(V, E_2, color='red',label='Birch-Murnaghan')
-    ax[1, 0].set_xlabel(r'Volume [$\AA^3$]')
-    ax[1, 0].set_ylabel(r'Energy [Ry]')
-    ax[1, 0].legend()
+    ax[1, 0].set_xlabel(r'Volume [$\AA^3$]', fontsize=16)
+    ax[1, 0].set_ylabel(r'Energy [Ry]', fontsize=16)
+    ax[1, 0].legend(fontsize=12)
 
     ax[1, 1].plot(V, E, '.', label='QE data')
     ax[1, 1].plot(V, E_3, color='red', label='Vinet')
-    ax[1, 1].set_xlabel(r'Volume [$\AA^3$]')
-    ax[1, 1].legend()
+    ax[1, 1].set_xlabel(r'Volume [$\AA^3$]', fontsize=16)
+    ax[1, 1].legend(fontsize=12)
 
     plt.tight_layout()
     plt.show()
 
+def bulk_properties(filename):
+    """Determine the bulk properties of silicon from the fitted parameters 
+    of the three equations of state and write to file"""
+    data = pd.read_csv(filename)
+    V0_M = data["V0 [A^3/atom]"].values[0] * 1e-30 # convert from A^3 to m^3
+    B0_M = data["B0 [GPa]"].values[0]      * 1e9 # convert from GPa to Pa
+    V0_B = data["V0 [A^3/atom]"].values[1] * 1e-30 # convert from A^3 to m^3
+    B0_B = data["B0 [GPa]"].values[1]      * 1e9 # convert from GPa to Pa
+    V0_V = data["V0 [A^3/atom]"].values[2] * 1e-30 # convert from A^3 to m^3
+    B0_V = data["B0 [GPa]"].values[2]      * 1e9 # convert from GPa to Pa
+
+    h_cross = 1.054571726e-34 # Planck's constant in Js
+    m_si = 28.0855 * 1.66053906660e-27 # mass of silicon atom in kg
+    kB = 1.3806488e-23 # Boltzmann constant in J/K
+
+    # Calculate the mass density of Si from each EOS
+    rho_M = m_si / V0_M
+    rho_B = m_si / V0_B
+    rho_V = m_si / V0_V
+
+    # Calculate the sound velocity in Si from each EOS
+    cL_M = np.sqrt(B0_M / rho_M)
+    cL_B = np.sqrt(B0_B / rho_B)
+    cL_V = np.sqrt(B0_V / rho_V)
+
+    # Calculate the Debye temperature of Si from each EOS
+    kD_M = (6 * np.pi**2 / V0_M)**(1 / 3)
+    kD_B = (6 * np.pi**2 / V0_B)**(1 / 3)
+    kD_V = (6 * np.pi**2 / V0_V)**(1 / 3)
+
+    theta_M = h_cross * cL_M * kD_M / kB
+    theta_B = h_cross * cL_B * kD_B / kB
+    theta_V = h_cross * cL_V * kD_V / kB
+
+    # round results to 6 decimal places and write to file
+    rho_M = round(rho_M, 6)
+    rho_B = round(rho_B, 6)
+    rho_V = round(rho_V, 6)
+    cL_M = round(cL_M, 6)
+    cL_B = round(cL_B, 6)
+    cL_V = round(cL_V, 6)
+    theta_M = round(theta_M, 6)
+    theta_B = round(theta_B, 6)
+    theta_V = round(theta_V, 6)
+
+    df = pd.DataFrame(index=["Murnaghan", "Birch-Murnaghan", "Vinet"], columns=["Density [kg/m^3]", "Sound velocity [m/s]", "Debye temperature [K]"])
+    df.loc["Murnaghan"] = [rho_M, cL_M, theta_M]
+    df.loc["Birch-Murnaghan"] = [rho_B, cL_B, theta_B]
+    df.loc["Vinet"] = [rho_V, cL_V, theta_V]
+    df.to_csv("Si_bulk.txt", index=True, header=True)
 
 if __name__ == "__main__":
     filename1 = "Si-RyA.txt"
     filename2 = "Murnaghan_params.txt"
     filename3 = "Birch_params.txt"
     filename4 = "Vinet_params.txt"
-    convert(filename2, filename3, filename4)
+    filename5 = "EOS_parameters_converted.txt"
+    bulk_properties(filename5)

@@ -58,7 +58,7 @@ def plot_convergence(filename, pos=-2, name='alpha'):
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
 
-    plt.plot(x, dy, marker='o', color='b', label=fr'$\{name}$-Sn')
+    plt.plot(x, dy, marker='.', color='b', label=fr'$\{name}$-Sn')
     plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
     #plt.axhline(y=tol_1meV, color='r', linestyle='--', label='1 meV')
     plt.yscale('log')
@@ -111,7 +111,7 @@ def energy_diff(file1, file2, pos=-2):
     dE = np.abs(dE1 - dE1[-1])
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     
-    plt.plot(Ec1, dE, marker='o', color='b', label=r'$\Delta E$')
+    plt.plot(Ec1, dE, marker='.', color='b', label=r'$\Delta E$')
     plt.axhline(y=dE[-1]+tol_1meV, color='r', linestyle='--', label='1 meV')
     plt.legend()
     plt.yscale('log')
