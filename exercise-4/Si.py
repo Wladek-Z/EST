@@ -3,17 +3,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-def make_data(filename1, filename2):
+def get_data(filename1):
     """
-    Read energies and lattice constants from file then write new file with the 
-    volume and energy data for plotting and curve fitting.
+    Read x and y data from file and return y
     
     Args:
-        filename1: Path to the input file
-        filename2: Path to the output file
+        filename1: Path to the data file
+
+    Returns:
+        y: Array of values corresponding to some inputs
     """
-    lattice = np.empty(0)
-    energies = np.empty(0)
+    x = np.empty(0)
+    y = np.empty(0)
     
     with open(filename1, 'r') as f:
         for line in f:
@@ -26,17 +27,17 @@ def make_data(filename1, filename2):
                 # Extract digits from the filename (e.g., "mt-data/100.out" -> 100)
                 num_str = ''.join(filter(str.isdigit, filename_str))
                 if num_str:
-                    lattice = np.append(lattice, int(num_str))
+                    x = np.append(x, int(num_str))
                 # Extract the second last item (output)
-                energies = np.append(energies, float(items[-2]))
+                y = np.append(y, float(items[-2]))
 
-    # sort both arrays
-    sorted_indices = np.argsort(lattice)
-    lattice = lattice[sorted_indices] * 0.01             # convert to Bohrs
-    energies = energies[sorted_indices]
+    # sort y array according to x values
+    sorted_indices = np.argsort(x)
+    y = y[sorted_indices]
 
-    lattice = lattice * 0.529177210903                   # convert to Angstroms
-    volumes = lattice**3                                 # volume of unit cell
+    """
+    x = x * 0.529177210903                   # convert to Angstroms
+    volumes = x**3                                 # volume of unit cell
                                                          # note: 8 atoms per unit cell
     # write data to file 2
     df = pd.DataFrame({
@@ -45,6 +46,30 @@ def make_data(filename1, filename2):
     })
 
     df.to_csv(filename2, index=False, header=True)
+    """
+    return y
+
+def collect_data(filename1, filename2):
+    """
+    combine the energy and volume data into a single file for plotting and curve fitting.
+    
+    Arguments:
+        filename1: path to energy data file
+        filename2: path to volume data file
+    """
+
+    y1 = get_data(filename1)
+    y2 = get_data(filename2)
+
+    # convert volume data from au^3 (bohr^3) to angstrom^3
+    y2 = y2 * (0.529177210903)**3
+
+    df = pd.DataFrame({
+        "Volume": y2,
+        "Energy": y1
+    })
+
+    df.to_csv("Si_data.txt", index=False, header=True)
 
 def fit_Murnaghan(filename1):
     """
@@ -58,8 +83,8 @@ def fit_Murnaghan(filename1):
     V = data["Volume"].values 
     E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3, via energy per atom
-    p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 2 # convert 100 GPa to Ry/Angstrom^3, via energy per atom
+    p0 = [-19.19270380, 20*2, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Murnaghan EOS
     popt_murn, _ = curve_fit(murnaghan, V, E, p0=p0, maxfev=100000)
@@ -86,8 +111,8 @@ def fit_Birch(filename1):
     V = data["Volume"].values
     E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3
-    p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 2 # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-19.19270380, 20*2, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Birch-Murnaghan EOS
     popt_birch, _ = curve_fit(birch_murnaghan, V, E, p0=p0, maxfev=100000)
@@ -114,8 +139,8 @@ def fit_Vinet(filename1):
     V = data["Volume"].values
     E = data["Energy"].values
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 8 # convert 100 GPa to Ry/Angstrom^3
-    p0 = [-19.19270380, 20*8, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 2 # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-19.19270380, 20*2, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Vinet EOS
     popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000)
@@ -171,27 +196,28 @@ def convert(filename1, filename2, filename3):
     """convert units of fitted parameters to Angstroms and Rydbergs for volume and energy, GPa for bulk modulus"""
     data1 = pd.read_csv(filename1)
     E01      = data1["E0"].values[0]
-    V01      = data1["V0"].values[0] / 8 # volume per atom
-    B01      = data1["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    V01      = data1["V0"].values[0] / 2 # volume per atom
+    B01      = data1["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime1= data1["B0_prime"].values[0]
 
     data2 = pd.read_csv(filename2)
     E02      = data2["E0"].values[0]
-    V02      = data2["V0"].values[0] / 8 # volume per atom
-    B02      = data2["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    V02      = data2["V0"].values[0] / 2 # volume per atom
+    B02      = data2["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime2= data2["B0_prime"].values[0]
 
     data3 = pd.read_csv(filename3)
     E03      = data3["E0"].values[0]
-    V03      = data3["V0"].values[0] / 8 # volume per atom
-    B03      = data3["B0"].values[0] * 8 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
+    V03      = data3["V0"].values[0] / 2 # volume per atom
+    B03      = data3["B0"].values[0] * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9 # convert from Ry/Angstrom^3 to GPa
     B0_prime3= data3["B0_prime"].values[0]
 
     df = pd.DataFrame(index = ["Murnaghan", "Birch-Murnaghan", "Vinet"], columns=["E0 [Ry/atom]", "V0 [A^3/atom]", "B0 [GPa]", "B0'"])
-    df.loc["Murnaghan"] = [E01, V01, B01, B0_prime1]
-    df.loc["Birch-Murnaghan"] = [E02, V02, B02, B0_prime2]
-    df.loc["Vinet"] = [E03, V03, B03, B0_prime3]
-    df.to_csv("EOS_parameters_converted.txt", index=False, header=True)
+    # round to 6 decimal places and write to file
+    df.loc["Murnaghan"] = [round(E01, 6), round(V01, 6), round(B01, 6), round(B0_prime1, 6)]
+    df.loc["Birch-Murnaghan"] = [round(E02, 6), round(V02, 6), round(B02, 6), round(B0_prime2, 6)]
+    df.loc["Vinet"] = [round(E03, 6), round(V03, 6), round(B03, 6), round(B0_prime3, 6)]
+    df.to_csv("EOS_parameters_converted.txt", index=True, header=True)
 
 def plot_4(filename1, filename2, filename3, filename4):
     """plot the original data and the three fitted EOS on 4 subplots"""
@@ -297,9 +323,10 @@ def bulk_properties(filename):
     df.to_csv("Si_bulk.txt", index=True, header=True)
 
 if __name__ == "__main__":
-    filename1 = "Si-RyA.txt"
-    filename2 = "Murnaghan_params.txt"
-    filename3 = "Birch_params.txt"
-    filename4 = "Vinet_params.txt"
-    filename5 = "EOS_parameters_converted.txt"
-    bulk_properties(filename5)
+    filename = "Si_data.txt"
+    filename3 = "Murnaghan_params.txt"
+    filename4 = "Birch_params.txt"
+    filename5 = "Vinet_params.txt"
+    filename6 = "EOS_parameters_converted.txt"
+    filename7 = "KSn-energies.txt"
+    

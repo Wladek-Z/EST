@@ -58,15 +58,15 @@ def plot_convergence(filename, pos=-2, name='alpha'):
     tol_1meV = 1 / 13605.6931229947    # 1 meV in Ry
     tol_5meV = 5 / 13605.6931229947    # 5 meV in Ry
 
-    plt.plot(x, dy, marker='.', color='b', label=fr'$\{name}$-Sn')
-    plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
-    #plt.axhline(y=tol_1meV, color='r', linestyle='--', label='1 meV')
+    plt.plot(x, dy, marker='o', color='b', label=fr'SiO$_2$')
+    #plt.axhline(y=tol_5meV, color='r', linestyle='--', label='5 meV')
+    plt.axhline(y=tol_1meV, color='r', linestyle='--', label='1 meV')
     plt.yscale('log')
-    plt.xlabel(r'$E_c$ [Ry]')
+    plt.xlabel(r'k-point grid size')
     plt.ylabel(r'$\Delta E$ [Ry]')
     #plt.ylabel('k-points used')
     plt.legend()
-    #plt.xticks(x[::4])
+    plt.xticks(x[::2])
     plt.grid()
     plt.show()
 
@@ -125,7 +125,7 @@ def energy_diff(file1, file2, pos=-2):
 if __name__ == "__main__":
     filename1 = "A-energies.txt"
     filename2 = "B-energies.txt"
-    plot_convergence(filename1, name='alpha')
-    plot_convergence(filename2, name='beta')
-    energy_diff(filename1, filename2)
+    filename3 = "KSn-energies.txt"
+    filename4 = "KQ-energies.txt"
+    plot_convergence(filename4, pos=-2, name='alpha')
     
