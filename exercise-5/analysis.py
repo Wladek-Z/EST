@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import glob
 
 def get_data(filename1):
     """
@@ -128,8 +129,35 @@ def elsatic_constants(filename):
         f.write(f"c12: {c12:.6f} GPa\n")
         f.write(f"c11: {c11:.6f} GPa")
 
+def dos(folder, fermifile):
+    """
+    Plot density of states for each k-point grid size data in the folder.
+    
+    Arguments:
+        folder: path to the folder containing dos data files for varying k-point grid sizes
+        fermifile: path to the fermi energy data file
+    """
+    # get files from folder and sort them by the integer number in the filename
+    files = glob.glob(f"{folder}/*.dat")
+    files.sort(key=lambda x: int(''.join(filter(str.isdigit, x))))
+    files = files[::2]
+
+    _, Ef = get_data(fermifile)
+    Ef = Ef[::2]
+
+    for i, f in enumerate(files):
+        data = np.loadtxt(f, comments='#')
+        E = data[:, 0] - Ef[i]  # Energy values
+        D = data[:, 1]  # Density of states values
+        plt.plot(E, D, label=f"N = {''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}")
+    
+    plt.xlabel(r"Energy ($E - E_F$) [eV])", fontsize=12)
+    plt.ylabel("Density of States", fontsize=12)
+    plt.axvline(x=0, color='r', linestyle='--')
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
-    filename="task 3.1.2/stress.txt"
-    plot_stress(filename)
-    #elsatic_constants(filename)
+    folder="task 3.2/ASn-tetrahedron-data"
+    filename = "task 3.2/ASn-fermi.txt"
+    dos(folder, filename)
