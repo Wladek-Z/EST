@@ -142,22 +142,18 @@ def dos(folder, fermifile):
     files.sort(key=lambda x: int(''.join(filter(str.isdigit, x))))
     files = files[::2]
 
-    _, Ef = get_data(fermifile)
-    Ef = Ef[::2]
-
     for i, f in enumerate(files):
         data = np.loadtxt(f, comments='#')
-        E = data[:, 0] - Ef[i]  # Energy values
+        E = data[:, 0]  # Energy values
         D = data[:, 1]  # Density of states values
         plt.plot(E, D, label=f"N = {''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}")
     
-    plt.xlabel(r"Energy ($E - E_F$) [eV])", fontsize=12)
+    plt.xlabel(r"Energy [eV]", fontsize=12)
     plt.ylabel("Density of States", fontsize=12)
-    plt.axvline(x=0, color='r', linestyle='--')
     plt.legend()
     plt.show()
 
 if __name__ == "__main__":
     folder="task 3.2/ASn-tetrahedron-data"
-    filename = "task 3.2/ASn-fermi.txt"
+    filename = "task 3.2/ASn-T-fermi.txt"
     dos(folder, filename)
