@@ -1,0 +1,35 @@
+ &control
+    calculation = 'bands'
+    restart_mode='from_scratch',
+    prefix='alpha',
+    pseudo_dir = './',
+    outdir='./alpha-bands/',
+    wf_collect = .true.
+ /
+ &system
+    ibrav=  2, 
+    celldm(1) = 12.23, 
+    nat = 2,
+    ntyp= 1,
+    ecutwfc = 370,
+    nbnd = 36
+ /
+ &electrons
+    mixing_mode = 'plain'
+    mixing_beta = 0.7
+    conv_thr =  1.0d-7
+ /
+ATOMIC_SPECIES
+ Sn  118.7  Sn.pw91-n-van.UPF
+ATOMIC_POSITIONS crystal
+ Sn 0.00 0.00 0.00
+ Sn 0.25 0.25 0.25
+K_POINTS crystal_b 
+14
+0.00000 0.00000 0.00 50
+0.50000 0.00000 0.50 50
+0.50000 0.25000 0.75 50
+0.37500 0.37500 0.75 50
+0.00000 0.00000 0.00 50
+0.50000 0.50000 0.50 50
+
