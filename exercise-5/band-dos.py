@@ -3,7 +3,7 @@ import numpy as np
 import re
 from matplotlib import gridspec
 
-def band_dos(bandfile, dosfile, sym_points, labels):
+def band_dos(bandfile, dosfile, sym_points, labels, EF):
     plt.rcParams["figure.dpi"] = 150
     plt.rcParams["figure.facecolor"] = "white"
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -27,11 +27,6 @@ def band_dos(bandfile, dosfile, sym_points, labels):
     # ==========================
 
     filename = dosfile
-
-    with open(filename, "r") as f:
-        first_line = f.readline()
-
-    EF = float(re.search(r'EFermi\s*=\s*([0-9.]+)', first_line).group(1))
 
     dos_data = np.loadtxt(filename, comments="#")
     E = dos_data[:,0]
@@ -97,7 +92,7 @@ def band_dos(bandfile, dosfile, sym_points, labels):
     #plt.suptitle("Quartz Band Structure and DOS")
     plt.show()
 
-def band_dos_zoom(bandfile, dosfile, sym_points, labels):
+def band_dos_zoom(bandfile, dosfile, sym_points, labels, EF):
     plt.rcParams["figure.dpi"] = 150
     plt.rcParams["figure.facecolor"] = "white"
     plt.rcParams["figure.figsize"] = (8, 6)
@@ -122,11 +117,6 @@ def band_dos_zoom(bandfile, dosfile, sym_points, labels):
 
     filename = dosfile
 
-    with open(filename, "r") as f:
-        first_line = f.readline()
-
-    EF = float(re.search(r'EFermi\s*=\s*([0-9.]+)', first_line).group(1))
-
     dos_data = np.loadtxt(filename, comments="#")
     E = dos_data[:,0]
     DOS = dos_data[:,1]
@@ -147,20 +137,21 @@ def band_dos_zoom(bandfile, dosfile, sym_points, labels):
 
     # Fermi energy line
     ax_band.axhline(EF, linestyle=(0, (5, 5)), linewidth=0.75, color='k')
-    ax_band.set_ylim(EF - 8, EF + 4)  # Zoom in around the Fermi energy
+    ax_dos.set_xlim(0, 3)
+    
     
     # Add EF to y-axis ticks, moving any ticks that are too close
     yticks = list(ax_band.get_yticks())
-    threshold = 1.0  # If a tick is within 1 unit of EF, move it
+    threshold = 2.0  # If a tick is within 1 unit of EF, move it
     
     # Check and adjust ticks that are too close to EF
     for i, tick in enumerate(yticks):
         if abs(tick - EF) < threshold:
             # Move the tick away from EF by 1 units
             if tick < EF:
-                yticks[i] = tick - 1
+                yticks[i] = tick - 5
             else:
-                yticks[i] = tick + 1
+                yticks[i] = tick + 5
     
     yticks.append(EF)
     # Remove duplicates and sort
@@ -168,7 +159,11 @@ def band_dos_zoom(bandfile, dosfile, sym_points, labels):
     ax_band.set_yticks(yticks)
     yticklabels = [f'{tick:.0f}' if tick != EF else r'$E_F$' for tick in yticks]
     ax_band.set_yticklabels(yticklabels)
-
+    
+    # Set y-limits after ytick manipulation to prevent auto-expansion
+    ax_band.set_ylim(-5, 35)  # Zoom in around the Fermi energy
+    ax_dos.set_ylim(-5, 35)  # Match the y-limits of the DOS plot to the band structure plot
+    
     for x in sym_points:
         ax_band.axvline(x, linewidth=0.75, color='k', alpha=0.5)
 
@@ -195,21 +190,24 @@ def band_dos_zoom(bandfile, dosfile, sym_points, labels):
 if __name__ == "__main__":
     bandfile_quartz = 'Q-bands/quartz-bands.dat.gnu'
     dosfile_quartz = 'Q8.dat'
+    fermi_quartz = 2.58
     sym_points_quartz = [0, 0.5774, 0.9107, 1.5773, 2.0319, 2.6092, 2.9426, 3.7494]
     labels_quartz = [r'$\Gamma$', 'M', 'K', r'$\Gamma$', 'A', 'L', 'H', r'$\Gamma$']
 
     bandfile_alpha = 'ASn-bands-nscf/alpha-bands.dat.gnu'
     dosfile_alphs = 'ASn14.dat'
+    fermi_alplha = 7.988
     sym_points_alpha = [0, 1, 1.5, 1.8536, 2.9142, 3.7802]
     labels_alpha = [r'$\Gamma$', 'X', 'W', 'K', r'$\Gamma$', 'L']
 
 
     bandfile_beta = 'BSn-bands-nscf/beta-bands.dat.gnu'
     dosfile_beta = 'BSn14.dat'
+    fermi_beta = 10.808
     sym_points_beta = [0, 1.0439, 2.4896, 4.8046, 5.4534, 6.6826, 7.1826, 8.6862, 10.8726]
     labels_beta = [r'$\Gamma$', 'X', 'M', r'$\Gamma$', 'Z', 'N', 'P', r'$Z_1$', r'$\Gamma$']
 
 
-    band_dos_zoom(bandfile_quartz, dosfile_quartz, sym_points_quartz, labels_quartz)
-    #band_dos(bandfile_alpha, dosfile_alphs, sym_points_alpha, labels_alpha)
-    #band_dos(bandfile_beta, dosfile_beta, sym_points_beta, labels_beta)
+    #band_dos(bandfile_quartz, dosfile_quartz, sym_points_quartz, labels_quartz, fermi_quartz)
+    band_dos_zoom(bandfile_alpha, dosfile_alphs, sym_points_alpha, labels_alpha, fermi_alplha)
+    #band_dos_zoom(bandfile_beta, dosfile_beta, sym_points_beta, labels_beta, fermi_beta)
