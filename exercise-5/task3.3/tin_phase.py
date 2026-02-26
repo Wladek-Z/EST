@@ -70,13 +70,14 @@ def get_data(filename1, filename2, filename3):
     df.to_csv(filename3, index=False, header=True)
 
 
-def fit_Vinet(filename1):
+def fit_Vinet(filename1, filename2):
     """
     Read energies as volumes from file, then fit the Vinet equation of state to the data and
     write the parameters to a file for subsequent plotting.
 
     Arguments:
         filename1: Path to the input file
+        filename2: Path to the output file where fitted parameters will be saved
     """
     data = pd.read_csv(filename1)
     V = data["Volume"].values
@@ -89,7 +90,7 @@ def fit_Vinet(filename1):
     popt_vinet, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000)
     df = pd.DataFrame([popt_vinet], columns=["E0", "V0", "B0", "B0_prime"])
     
-    df.to_csv("B-params.txt", index=False, header=True) # units: Rydbergs and Angstroms
+    df.to_csv(filename2, index=False, header=True) # units: Rydbergs and Angstroms
 
 def plot(filename):
     data = pd.read_csv(filename)
@@ -134,13 +135,11 @@ class Phase:
         EB_fit = vinet(VB, self.E0B, self.V0B, self.B0B, self.B0_primeB)
 
         # Find the common tangent of the data between the two fits
-
-        initial_guess = [50, 60, -0.01]
+        initial_guess = [70, 55, -0.01]
         VA_t, VB_t, P = fsolve(self._common_tangent_equations, initial_guess)
 
-        # Compute energies at transition volumes
+        # Compute energy at transition volume
         EA_t = vinet(VA_t, self.E0A, self.V0A, self.B0A, self.B0_primeA)
-        EB_t = vinet(VB_t, self.E0B, self.V0B, self.B0B, self.B0_primeB)
 
         # gradient
         m = -P
@@ -149,7 +148,7 @@ class Phase:
         c = EA_t - m * VA_t
 
         # create x data for common tangent line
-        x = np.linspace(min(VA_t, VB_t)-10, max(VA_t, VB_t)+10, 200)
+        x = np.linspace(min(VA_t, VB_t)-10, max(VA_t, VB_t)+10, 4)
 
         # common tangent line
         tangent = m * x + c
