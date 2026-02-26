@@ -129,24 +129,23 @@ def elsatic_constants(filename):
         f.write(f"c12: {c12:.6f} GPa\n")
         f.write(f"c11: {c11:.6f} GPa")
 
-def dos(folder, fermifile):
+def dos(folder):
     """
     Plot density of states for each k-point grid size data in the folder.
     
     Arguments:
-        folder: path to the folder containing dos data files for varying k-point grid sizes
-        fermifile: path to the fermi energy data file
+        folder: path to the folder containing dos data files for varying something
     """
     # get files from folder and sort them by the integer number in the filename
     files = glob.glob(f"{folder}/*.dat")
     files.sort(key=lambda x: int(''.join(filter(str.isdigit, x))))
-    files = files[::2]
+    
 
     for i, f in enumerate(files):
         data = np.loadtxt(f, comments='#')
         E = data[:, 0]  # Energy values
         D = data[:, 1]  # Density of states values
-        plt.plot(E, D, label=f"N = {''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}")
+        plt.plot(E, D, label=f"degauss = 0.0{''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}0")
     
     plt.xlabel(r"Energy [eV]", fontsize=12)
     plt.ylabel("Density of States", fontsize=12)
@@ -209,9 +208,5 @@ def plot_bands(EF):
     
 
 if __name__ == "__main__":
-    folder="task 3.2/ASn-tetrahedron-data"
-    filename = "task 3.2/ASn-T-fermi.txt"
-    EF_B = 10.812 # eV @ N = 14
-    EF_A = 7.984  # eV @ N = 14
-    EF_Q = 2.576  # eV @ N = 8
-    dos(folder, filename)
+    folder="Q-G-data"
+    dos(folder)
