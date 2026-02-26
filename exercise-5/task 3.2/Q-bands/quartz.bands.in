@@ -1,0 +1,40 @@
+ &control
+    calculation = 'bands'
+    restart_mode='from_scratch',
+    prefix='quartz',
+    pseudo_dir = './',
+    outdir='./quartz-bands/',
+    wf_collect = .true.
+ /
+ &system
+    space_group = 154,
+    ibrav=  4, 
+    celldm(1) = 9.285,
+    celldm(3) = 1.100, 
+    nat = 2,
+    ntyp= 2,
+    ecutwfc = 150,
+    nbnd = 36
+ /
+ &electrons
+    mixing_mode = 'plain'
+    mixing_beta = 0.7
+    conv_thr =  1.0d-7
+ /
+ATOMIC_SPECIES
+ Si  28.086  Si.pbe-van_gipaw.UPF
+  O  16.000   O.pbe-van_gipaw.UPF
+ATOMIC_POSITIONS crystal_sg
+Si 0.46987 0.00 0.666667
+O  0.4141  0.2681 0.7855
+K_POINTS crystal_b ! Path: Gamma - M - K - Gamma - A - L - H - Gamma
+8
+0.00000 0.00000 0.00 50
+0.50000 0.00000 0.00 50
+0.33333 0.33333 0.00 50
+0.00000 0.00000 0.00 50
+0.00000 0.00000 0.50 50
+0.50000 0.00000 0.50 50
+0.33333 0.33333 0.50 50
+0.00000 0.00000 0.00 50
+

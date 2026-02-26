@@ -1,0 +1,38 @@
+  &control
+    calculation = 'bands'
+    restart_mode='from_scratch',
+    prefix='beta',
+    pseudo_dir = './',
+    outdir='./beta-bands/',
+    wf_collect = .true.
+ /
+ &system
+    ibrav=  7,
+    celldm(1) = 11.02,
+    celldm(3) = .5456,
+    nat = 2,
+    ntyp= 1,
+    ecutwfc = 370,
+    nbnd = 36
+ /
+ &electrons
+    mixing_mode = 'plain'
+    mixing_beta = 0.7
+    conv_thr =  1.0d-7
+ /
+ATOMIC_SPECIES
+ Sn 118.7 Sn.pw91-n-van.UPF
+ATOMIC_POSITIONS crystal_sg
+Sn     0.25 -0.125  0.125
+Sn    -0.25  0.125 -0.125
+K_POINTS crystal_b ! Path: Gamma - M - K - Gamma - A - L - H - Gamma
+14
+0.00000 0.00000 0.00 50
+0.00000 0.00000 0.50 50
+-0.50000 0.50000 0.50 50
+0.00000 0.00000 0.00 50
+0.32442 0.32442 -0.32442 50
+0.00000 0.50000 0.00 50
+0.25000 0.25000 0.25 50
+-0.32442 0.67558 0.32442 50
+0.00000 0.00000 0.00 50

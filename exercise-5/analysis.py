@@ -153,7 +153,65 @@ def dos(folder, fermifile):
     plt.legend()
     plt.show()
 
+def read_bands(filename, EF):
+    k_points = []
+    energies = []
+
+    with open(filename, "r") as f:
+        lines = f.readlines()
+
+    # First line contains nbnd and nks
+    header = lines[0]
+    nbnd = int(header.split("nbnd=")[1].split(",")[0])
+    
+    i = 1
+    while i < len(lines):
+        # Read k-point
+        k = list(map(float, lines[i].split()))
+        k_points.append(k)
+        i += 1
+
+        # Read nbnd energies
+        band_vals = []
+        while len(band_vals) < nbnd:
+            band_vals += list(map(float, lines[i].split()))
+            i += 1
+
+        energies.append(band_vals)
+
+    k_points = np.array(k_points)
+    energies = np.array(energies)
+
+    # ---- Construct cumulative k-path distance ----
+    k_dist = np.zeros(len(k_points))
+    for j in range(1, len(k_points)):
+        dk = np.linalg.norm(k_points[j] - k_points[j-1])
+        k_dist[j] = k_dist[j-1] + dk
+
+
+    return k_dist, energies
+
+
+def plot_bands(EF):
+
+    k_dist, energies = read_bands("quartz-bands.dat", EF)
+
+    plt.figure()
+
+    for band in range(energies.shape[1]):
+        plt.plot(k_dist, energies[:, band])
+
+    plt.axhline(EF, linestyle="--")
+    plt.xlabel("k-path distance")
+    plt.ylabel("Energy - EF (eV)")
+    plt.title("Quartz Band Structure")
+    plt.show()
+    
+
 if __name__ == "__main__":
     folder="task 3.2/ASn-tetrahedron-data"
     filename = "task 3.2/ASn-T-fermi.txt"
+    EF_B = 10.812 # eV @ N = 14
+    EF_A = 7.984  # eV @ N = 14
+    EF_Q = 2.576  # eV @ N = 8
     dos(folder, filename)
