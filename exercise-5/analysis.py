@@ -145,7 +145,7 @@ def dos(folder):
         data = np.loadtxt(f, comments='#')
         E = data[:, 0]  # Energy values
         D = data[:, 1]  # Density of states values
-        plt.plot(E, D, label=f"degauss = 0.0{''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}0")
+        plt.plot(E, D, label=f"degauss = 0.0{''.join(filter(str.isdigit, f.split('/')[-1].split('.')[0]))}")
     
     plt.xlabel(r"Energy [eV]", fontsize=12)
     plt.ylabel("Density of States", fontsize=12)
@@ -208,5 +208,5 @@ def plot_bands(EF):
     
 
 if __name__ == "__main__":
-    folder="Q-G-data"
+    folder="B-G-data"
     dos(folder)
