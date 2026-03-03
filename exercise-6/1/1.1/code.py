@@ -102,6 +102,7 @@ def dispersion_dos(bandfile, dosfile):
     plt.show()
 
 
+
 if __name__ == "__main__":
     filename1 = "si.ph-disp.gp"
     filename2 = "si.ph-dos.dat"
