@@ -93,7 +93,7 @@ def dispersion_dos(bandfile, dosfile):
     # ---- Plot DOS ----
     ax_dos.plot(dos, freq, c='k', lw=0.5, label='Total')
     ax_dos.plot(pdos_1, freq, c='b', lw=0.5, label='Si (1)')
-    ax_dos.plot(pdos_2, freq, c='r', lw=0.5, label='si (2)')
+    ax_dos.plot(pdos_2, freq, c='r', lw=0.5, label='Si (2)')
     ax_dos.set_xlabel('Phonon DOS')
     ax_dos.set_xticks([0, 0.05, 0.1])
     ax_dos.set_xticklabels([0, 0.05, 0.1])
