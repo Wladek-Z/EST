@@ -46,8 +46,8 @@ def phonon_dispersion(folder):
     data_list = []
     q_list = []
     fig = plt.figure(figsize=(10,8))
-    #for file in os.listdir(folder):
-    for i in np.arange(10, 0, -1):
+    #for i in np.arange(10, 0, -1):
+    for i in np.array([5, 6, 10]):
         counter += 1
         file = f"disp{i}.gp"
         filename = os.path.join(folder, file)
