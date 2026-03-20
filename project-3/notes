@@ -3,13 +3,17 @@ TASK 2
 - use k = 4 for Ec convergence, Ec = 20 Ry for k convergence
 - use ibrav 5 input
 
+convergent Ec = 90 Ry
+convergent k = 4 (64)
+ 
 TASK 3
 
 - Isotropy: spacing in each direction should be similar. So if one reciprocal vector is twice as long, you need roughly twice as many k-points in that direction.
-
 - Spacing dk = b/n, where b is the reciprocal lattice vector and n is the k-point grid size.
-
 - Choose spacing s.t. <= ice-II spacing.
+
+iceIh: 8 14 13 (1456)	[alternatively, 3 5 5 (75) coarser k-grid]
+iceVIII: 7 7 10 (490)
 
 TASK 4
 
@@ -18,6 +22,7 @@ TASK 4
 TASK 5
 
 - Run geometry optimisation for volumes +- 20% around equilibrium.
+- vary each celldm by ~7% to get +- ~20% volume change.
 
 TASK 6
 
@@ -26,7 +31,5 @@ TASK 6
 TASK 7
 
 - Vinet fit.
-
 - Energy/molecule, volume/molecules in graphs.
-
 - Common tangent for transition pressures.
