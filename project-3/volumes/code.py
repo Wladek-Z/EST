@@ -148,7 +148,7 @@ class Phase:
         E2_fit = vinet(V2, self.E02, self.V02, self.B02, self.B0_prime2)
 
         # Find the common tangent of the data between the two fits
-        initial_guess = [32, 23, 0.01]
+        initial_guess = [24, 19, -0.01]
         V1_t, V2_t, P = fsolve(self._common_tangent_equations, initial_guess)
 
         # Compute energy at transition volume
@@ -209,5 +209,5 @@ class Phase:
 
     
 if __name__ == "__main__":
-    Ih_II = Phase("iceII-params.txt", "iceVIII-params.txt")
-    Ih_II.common_tangent("iceII-data.txt", "iceVIII-data.txt", 12, 8)
+    II_VIII = Phase("iceII-params.txt", "iceVIII-params.txt")
+    II_VIII.common_tangent("iceII-data.txt", "iceVIII-data.txt", 12, 8)

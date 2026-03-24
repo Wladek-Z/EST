@@ -1,6 +1,6 @@
 Note: we are using the PBE functional, Vanderbilt pseudopotential
 
-TASK 2
+TASK 2 DONE
 
 - use k = 4 for Ec convergence, Ec = 20 Ry for k convergence
 - use ibrav 5 input
@@ -8,7 +8,7 @@ TASK 2
 convergent Ec = 90 Ry
 convergent k = 4 (64)
  
-TASK 3
+TASK 3 DONE
 
 - Isotropy: spacing in each direction should be similar. So if one reciprocal vector is twice as long, you need roughly twice as many k-points in that direction.
 - Spacing dk = b/n, where b is the reciprocal lattice vector and n is the k-point grid size.
@@ -17,11 +17,11 @@ TASK 3
 iceIh: 8 14 13 (1456)	(alternatively, 3 5 5 (75) coarser k-grid)
 iceVIII: 7 7 10 (490)
 
-TASK 4
+TASK 4 DONE
 
 - Use Ec obtained in task 2 for all ice phases.
 
-TASK 5
+TASK 5 DONE
 
 - Run geometry optimisation for volumes +- 20% around equilibrium.
 - vary each celldm by ~7% to get +- ~20% volume change.
@@ -39,55 +39,55 @@ iceIh 1000
 
 	dO...O: 2.74025(0) A
 	dOH   : 0.97613(0) A
-	angle : 107.5909(0) deg
+	angle : 107.3467 deg
 
-iceIh 928
+iceIh 928 DONE
 
-	dO...O: 2.54295(0) A
-	dOH   : 0.90585(0) A
-	angle : 107.5909(0) deg
+	dO...O: 2.53390 A
+	dOH   : 0.93261 A
+	angle : 107.3467 deg
 	
 iceIh 1064
 	
 	dO...O: 2.91563(0) A
 	dOH   : 1.03861(0) A
-	angle : 107.5909(0) deg
+	angle : 107.3467 deg
 	
-iceII 1000
+iceII 1000 DONE
 	
-	dO...O: 2.76551(0) A
-	dOH   : 1.01312(0) A
-	angle : 99.8624(0) deg
+	dO...O: 2.75601 A
+	dOH   : 0.99478 A
+	angle : 105.8086 deg
 	
-iceII 928
+iceII 928 DONE
 
-	dO...O: 2.56640(0) A
-	dOH   : 0.94017(0) A
-	angle : 99.8624(0) deg
+	dO...O: 2.55758 A
+	dOH   : 0.92315 A
+	angle : 105.8086 deg
 	
-iceII 1064
+iceII 1064 DONE
 
-	dO...O: 2.94251(0) A
-	dOH   : 1.07795(0) A
-	angle : 99.8624(0) deg
+	dO...O: 2.93240 A
+	dOH   : 1.05844 A
+	angle : 105.8086 deg
 	
-iceVIII 1000
+iceVIII 1000 DONE
 	
-	dO...O: 2.89541(0) A
-	dOH   : 0.96857(0) A
-	angle : 105.5976(0) deg
+	dO...O: 2.89542 A
+	dOH   : 0.99311 A
+	angle : 105.8303 deg
 	
-iceVIII 928
+iceVIII 928 DONE
 	
-	dO...O: 2.68694(0) A
-	dOH   : 0.89883(0) A
-	angle : 105.5976(0) deg
+	dO...O: 2.68695 A
+	dOH   : 0.92160 A
+	angle : 105.8303 deg
 	
-iceVIII 1064
+iceVIII 1064 DONE
 
-	dO...O: 3.08072(0) A
-	dOH   : 1.03056(0) A
-	angle : 105.5976(0) deg
+	dO...O: 3.08073 A
+	dOH   : 1.05666 A
+	angle : 105.8303 deg
 
 TASK 7
 
@@ -107,13 +107,12 @@ iceIh-iceVIII transition
 	V1 = 32.977518 Angstrom^3/molecule, V2 = 19.900275 Angstrom^3/molecule
 	Volume difference = 39.655023%
 
-iceII-iceVIII transition
+iceII-iceVIII transition DONE
 
-	Pressure = -0.336547 GPa (?)
-	V1 = 24.863733 Angstrom^3/molecule, V2 = 20.179422 Angstrom^3/molecule
-	Volume difference = 18.839934%
+	Pressure = 3.353028 GPa
+	V1 = 24.257339 Angstrom^3/molecule, V2 = 18.493128 Angstrom^3/molecule
+	Volume difference = 23.762753%
 	
-Explanation: II goes to Ih and VIII goes to Ih, but II cannot transition to VIII, as this would require a negative pressure (i.e. no coexistence) (only positive transition pressures are reported)
 
 -Calculate relative energy differences
 -Calculate cohesive energy by subtracting energy per molecule
