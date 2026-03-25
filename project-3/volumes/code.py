@@ -97,6 +97,7 @@ def fit_Vinet(filename1, filename2, molecules):
     plt.xlabel(r"Volume [$\AA^3$/molecule]", fontsize=12)
     plt.ylabel("Energy [Ry/molecule]", fontsize=12)
     plt.legend()
+    plt.tight_layout()
     plt.show()
 
     
@@ -173,9 +174,9 @@ class Phase:
 
         # Plot the data, the fits, and the common tangent
         plt.figure(figsize=(8, 6))
-        plt.plot(V1, E1, 'o', label='ice-II data', color='cyan')
+        plt.plot(V1, E1, 'o', label='ice-Ih data', color='cyan')
         plt.plot(V2, E2, 'o', label='ice-VIII data', color='lime')
-        plt.plot(V1, E1_fit, label='ice-II fit', color='blue')
+        plt.plot(V1, E1_fit, label='ice-Ih fit', color='blue')
         plt.plot(V2, E2_fit, label='ice-VIII fit', color='green')
         plt.plot(x, tangent, label='common tangent', linestyle='--', color='black')
 
@@ -209,5 +210,5 @@ class Phase:
 
     
 if __name__ == "__main__":
-    II_VIII = Phase("iceII-params.txt", "iceVIII-params.txt")
-    II_VIII.common_tangent("iceII-data.txt", "iceVIII-data.txt", 12, 8)
+    Ih_VIII = Phase("iceIh-params.txt", "iceVIII-params.txt")
+    Ih_VIII.common_tangent("iceIh-data.txt", "iceVIII-data.txt", 8, 8)
