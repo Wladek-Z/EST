@@ -103,78 +103,6 @@ def fit_Vinet(filename1, filename2, molecules):
     
     df.to_csv(filename2, index=False, header=True) # units: Rydbergs and Angstroms
 
-def plot_variation():
-    """
-    Plot the variation of bond length, oxygen separation, and bond angle 
-    against unit-cell volume
-    """
-    # data for non-vdw
-    VIh = np.array([1387.4413, 1736.0838, 2091.2000])  * (0.529177210903)**3  / 8
-    VII = np.array([1640.8604, 2053.1832, 2473.1621])  * (0.529177210903)**3  / 12
-    VVIII = np.array([805.9846, 1008.5161, 1214.8082]) * (0.529177210903)**3  / 8
-    dOOIh = np.array([2.53390, 2.73049, 2.90524])
-    dOOII = np.array([2.55758, 2.75601, 2.93240])
-    dOOVIII = np.array([2.68695, 2.89542, 3.08073])
-    dOHIh = np.array([0.93261, 1.00497, 1.06929])
-    dOHII = np.array([0.92315, 0.99478, 1.05844])
-    dOHVIII = np.array([0.92160, 0.99311, 1.05666])
-    angIh = np.array([107.3467, 107.3467, 107.3467])
-    angII = np.array([105.8086, 105.8086, 105.8086])
-    ang2II = np.array([102.5916, 102.5916, 102.5916])
-    angVIII = np.array([105.8303, 105.8303, 105.8303])
-    # data for vdw
-    dOOIh_vdw = np.array([2.55835, 2.75684, 2.93328])
-    dOOII_vdw = np.array([2.57778, 2.77778, 2.95556])
-    dOOVIII_vdw = np.array([2.68693, 2.89540, 3.08071])
-    dOHIh_vdw = np.array([0.92560, 0.99741, 1.06125])
-    dOHII_vdw = np.array([0.92047, 0.99188, 1.05537])
-    dOHVIII_vdw = np.array([0.91813, 0.98936, 1.05268])
-    angIh_vdw = np.array([106.6896, 106.6896, 106.6896])
-    angII_vdw = np.array([106.8331, 106.8331, 106.8331])
-    ang2II_vdw = np.array([103.7740, 103.7740, 103.7740])
-    angVIII_vdw = np.array([105.4342, 105.4342, 105.4342])
-
-    plt.plot(VIh, dOOIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, dOOIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
-    plt.plot(VII, dOOII, marker='o', color='green', label=r'ice-II')
-    plt.plot(VII, dOOII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
-    plt.plot(VVIII, dOOVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, dOOVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
-    plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
-    plt.ylabel(r"oxygen separation [$\AA$]", fontsize=12)
-    plt.legend()
-    plt.grid(visible=True)
-    plt.tight_layout()
-    plt.show()
-
-    plt.plot(VIh, dOHIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, dOHIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
-    plt.plot(VII, dOHII, marker='o', color='green', label=r'ice-II')
-    plt.plot(VII, dOHII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
-    plt.plot(VVIII, dOHVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, dOHVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
-    plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
-    plt.ylabel(r"bond length [$\AA$]", fontsize=12)
-    plt.legend()
-    plt.grid(visible=True)
-    plt.tight_layout()
-    plt.show()
-
-    plt.plot(VIh, angIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, angIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
-    plt.plot(VII, angII, marker='o', color='green', label=r'ice-II (1)')
-    plt.plot(VII, ang2II, marker='o', color='orange', label=r'ice-II (2)')
-    plt.plot(VII, angII_vdw, marker='o', color='lime', label=r'ice-II (1) (VdW)')
-    plt.plot(VII, ang2II_vdw, marker='o', color='yellow', label=r'ice-II (2) (VdW)')
-    plt.plot(VVIII, angVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, angVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
-    plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
-    plt.ylabel("bond angle [deg]", fontsize=12)
-    plt.legend()
-    plt.grid(visible=True)
-    plt.tight_layout()
-    plt.show()
-
 def plot(filename, molecules):
     data = pd.read_csv(filename)
     V = data["Volume"].values / molecules
@@ -378,9 +306,9 @@ class Phase:
         r = V + h
         l = V - h
         return (vinet(r, E0, V0, B0, B0_prime) - vinet(l, E0, V0, B0, B0_prime)) / (2 * h)
+        
 
     
 if __name__ == "__main__":
-    #ct = Phase("iceIh-params.txt", "iceII-params.txt", "iceVIII-params.txt")
-    #ct.common_tangent_triple("iceIh-data.txt", "iceII-data.txt", "iceVIII-data.txt", 8, 12, 8)
-    plot_variation()
+    ct = Phase("iceIh-params.txt", "iceII-params.txt", "iceVIII-params.txt")
+    ct.common_tangent_triple("iceIh-data.txt", "iceII-data.txt", "iceVIII-data.txt", 8, 12, 8)
