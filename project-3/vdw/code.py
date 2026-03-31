@@ -225,9 +225,13 @@ class Phase:
         initial_guess = [24, 19, -0.01]
         V23_t, V3_t, P23 = fsolve(self._common_tangent_equations_23, initial_guess)
 
+        initial_guess = [30, 19, -0.01]
+        V13_t, V31_t, P13 = fsolve(self._common_tangent_equations_13, initial_guess)
+
         # Compute energies at transition volumes
         E1_t = vinet(V1_t, self.E01, self.V01, self.B01, self.B0_prime1)
         E3_t = vinet(V3_t, self.E03, self.V03, self.B03, self.B0_prime3)
+        E13_t = vinet(V13_t, self.E01, self.V01, self.B01, self.B0_prime1)
 
         # gradients and intercepts
         m12 = -P12
@@ -236,17 +240,23 @@ class Phase:
         m23 = -P23
         c23 = E3_t - m23 * V3_t
 
+        m13 = -P13
+        c13 = E13_t - m13 * V13_t
+
         # create x data for common tangent line
         x12 = np.linspace(min(V1_t, V21_t)-4, max(V1_t, V21_t)+4, 4)
         x23 = np.linspace(min(V23_t, V3_t)-4, max(V23_t, V3_t)+4, 4)
+        x13 = np.linspace(min(V13_t, V31_t)-4, max(V13_t, V31_t)+4, 4)
 
         # common tangent lines
         tangent12 = m12 * x12 + c12
         tangent23 = m23 * x23 + c23
+        tangent13 = m13 * x13 + c13
 
         # Convert from Rydbergs/Angstrom^3 to GPa
         P12_GPa = P12 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9
         P23_GPa = P23 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9
+        P13_GPa = P13 * (13.6056931229947 * 1.60218e-19) / 1e-30 / 1e9
         # print results
         print(f"Pressure 1-2 = {P12_GPa:.6f} GPa")
         print(f"V1 = {V1_t:.6f} Angstrom^3/molecule, V2 = {V21_t:.6f} Angstrom^3/molecule")
@@ -254,6 +264,9 @@ class Phase:
         print(f"Pressure 2-3 = {P23_GPa:.6f} GPa")
         print(f"V2 = {V23_t:.6f} Angstrom^3/molecule, V3 = {V3_t:.6f} Angstrom^3/molecule")
         print(f"Volume difference = {((V23_t - V3_t)/V23_t * 100):.6f}%")
+        print(f"Pressure 1-3 = {P13_GPa:.6f} GPa")
+        print(f"V13 = {V13_t:.6f} Angstrom^3/molecule, V31 = {V31_t:.6f} Angstrom^3/molecule")
+        print(f"Volume difference = {((V13_t - V31_t)/V13_t * 100):.6f}%")
 
         # Plot the data, the fits, and the common tangent
         plt.figure(figsize=(8, 6))
@@ -263,8 +276,9 @@ class Phase:
         plt.plot(V1, E1_fit, label=r'ice-I$_h$ fit', color='blue')
         plt.plot(V2, E2_fit, label='ice-II fit', color='green')
         plt.plot(V3, E3_fit, label='ice-VIII fit', color='red')
-        plt.plot(x12, tangent12, label=r'I$_h\leftarrow$II c.t.', linestyle='--', color='black')
-        plt.plot(x23, tangent23, label=r'II$\leftarrow$VIII c.t.', linestyle=':', color='black')
+        plt.plot(x12, tangent12, label=r'I$_h\rightarrow$II c.t.', linestyle='--', color='black')
+        plt.plot(x23, tangent23, label=r'II$\rightarrow$VIII c.t.', linestyle=':', color='black')
+        plt.plot(x13, tangent13, label=r'I$_h\rightarrow$VIII c.t.', linestyle='-.', color='black')
 
         plt.xlabel(r"Volume [$\AA^3$/molecule]", fontsize=12)
         plt.ylabel("Energy [Ry/molecule]", fontsize=12)
@@ -298,6 +312,19 @@ class Phase:
         eq3 = (vinet(V2, self.E02, self.V02, self.B02, self.B0_prime2) - vinet(V3, self.E03, self.V03, self.B03, self.B0_prime3)) / (V2 - V3) + P
         return [eq1, eq2, eq3]
 
+    def _common_tangent_equations_13(self, vars):
+        """
+        Function to minimise for points through which the common tangent 
+        passes and the gradient (-pressure) of this line. Fits datasets 1 and 3
+        """
+        V1, V3, P = vars
+        # P = - (E1 - E2) / (V1  - V2)
+        eq1 = self.derivative(V1, self.E01, self.V01, self.B01, self.B0_prime1) + P
+        eq2 = self.derivative(V3, self.E03, self.V03, self.B03, self.B0_prime3) + P
+        # Make eq3 symmetric: slope should be the same regardless of order
+        eq3 = (vinet(V1, self.E01, self.V01, self.B01, self.B0_prime1) - vinet(V3, self.E03, self.V03, self.B03, self.B0_prime3)) / (V1 - V3) + P
+        return [eq1, eq2, eq3]
+
     def derivative(self, V, E0, V0, B0, B0_prime):
         """
         Calculate the numerical derivative of the Vinet equation of state with respect to volume.
@@ -310,5 +337,13 @@ class Phase:
 
     
 if __name__ == "__main__":
+    collect_data("iceIh-energies.txt", "iceIh-volumes.txt", "iceIh-data.txt")
+    collect_data("iceII-energies.txt", "iceII-volumes.txt", "iceII-data.txt")
+    collect_data("iceVIII-energies.txt", "iceVIII-volumes.txt", "iceVIII-data.txt")
+    
+    fit_Vinet("iceIh-data.txt", "iceIh-params.txt", 8)
+    fit_Vinet("iceII-data.txt", "iceII-params.txt", 12)
+    fit_Vinet("iceVIII-data.txt", "iceVIII-params.txt", 8)
+    
     ct = Phase("iceIh-params.txt", "iceII-params.txt", "iceVIII-params.txt")
     ct.common_tangent_triple("iceIh-data.txt", "iceII-data.txt", "iceVIII-data.txt", 8, 12, 8)
