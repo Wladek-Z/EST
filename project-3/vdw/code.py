@@ -80,8 +80,8 @@ def fit_Vinet(filename1, filename2, molecules):
     V = data["Volume"].values / molecules
     E = data["Energy"].values / molecules
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 2 # convert 100 GPa to Ry/Angstrom^3
-    p0 = [-19.19270380, 40, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 8.5 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) / 2 # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-35, 33, B0_trial, 6] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Vinet EOS
     popt, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000)
@@ -219,13 +219,13 @@ class Phase:
         E3_fit = vinet(V3, self.E03, self.V03, self.B03, self.B0_prime3)
 
         # Find the common tangent of the data between the three fits
-        initial_guess = [30, 24, -0.01]
+        initial_guess = [24, 20, -0.01]
         V1_t, V21_t, P12 = fsolve(self._common_tangent_equations_12, initial_guess)
 
-        initial_guess = [24, 19, -0.01]
+        initial_guess = [24, 20, -0.01]
         V23_t, V3_t, P23 = fsolve(self._common_tangent_equations_23, initial_guess)
 
-        initial_guess = [30, 19, -0.01]
+        initial_guess = [24, 20, -0.01]
         V13_t, V31_t, P13 = fsolve(self._common_tangent_equations_13, initial_guess)
 
         # Compute energies at transition volumes
@@ -337,13 +337,13 @@ class Phase:
 
     
 if __name__ == "__main__":
-    collect_data("iceIh-energies.txt", "iceIh-volumes.txt", "iceIh-data.txt")
-    collect_data("iceII-energies.txt", "iceII-volumes.txt", "iceII-data.txt")
-    collect_data("iceVIII-energies.txt", "iceVIII-volumes.txt", "iceVIII-data.txt")
+    #collect_data("iceIh-energies.txt", "iceIh-volumes.txt", "iceIh-data.txt")
+    #collect_data("iceII-energies.txt", "iceII-volumes.txt", "iceII-data.txt")
+    #collect_data("iceVIII-energies.txt", "iceVIII-volumes.txt", "iceVIII-data.txt")
     
-    fit_Vinet("iceIh-data.txt", "iceIh-params.txt", 8)
-    fit_Vinet("iceII-data.txt", "iceII-params.txt", 12)
-    fit_Vinet("iceVIII-data.txt", "iceVIII-params.txt", 8)
+    #fit_Vinet("iceIh-data.txt", "iceIh-params.txt", 8)
+    #fit_Vinet("iceII-data.txt", "iceII-params.txt", 12)
+    #fit_Vinet("iceVIII-data.txt", "iceVIII-params.txt", 8)
     
     ct = Phase("iceIh-params.txt", "iceII-params.txt", "iceVIII-params.txt")
     ct.common_tangent_triple("iceIh-data.txt", "iceII-data.txt", "iceVIII-data.txt", 8, 12, 8)

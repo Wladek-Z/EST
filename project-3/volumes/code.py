@@ -80,8 +80,8 @@ def fit_Vinet(filename1, filename2, molecules):
     V = data["Volume"].values / molecules
     E = data["Energy"].values / molecules
 
-    B0_trial = 100 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
-    p0 = [-19.19270380, 40, B0_trial, 4] # initial guess for the parameters (E0, V0, B0, B0_prime)
+    B0_trial = 8.5 * 1e9 * 1e-30 / (13.6056931229947 * 1.60218e-19) # convert 100 GPa to Ry/Angstrom^3
+    p0 = [-34.5, 31, B0_trial, 6] # initial guess for the parameters (E0, V0, B0, B0_prime)
 
     # Fit Vinet EOS
     popt, _ = curve_fit(vinet, V, E, p0=p0, maxfev=100000)
@@ -109,37 +109,22 @@ def plot_variation():
     against unit-cell volume
     """
     # data for non-vdw
-    VIh = np.array([1387.4413, 1736.0838, 2091.2000])  * (0.529177210903)**3  / 8
-    VII = np.array([1640.8604, 2053.1832, 2473.1621])  * (0.529177210903)**3  / 12
-    VVIII = np.array([805.9846, 1008.5161, 1214.8082]) * (0.529177210903)**3  / 8
-    dOOIh = np.array([2.53390, 2.73049, 2.90524])
-    dOOII = np.array([2.55758, 2.75601, 2.93240])
-    dOOVIII = np.array([2.68695, 2.89542, 3.08073])
-    dOHIh = np.array([0.93261, 1.00497, 1.06929])
-    dOHII = np.array([0.92315, 0.99478, 1.05844])
-    dOHVIII = np.array([0.92160, 0.99311, 1.05666])
-    angIh = np.array([107.3467, 107.3467, 107.3467])
-    angII = np.array([105.8086, 105.8086, 105.8086])
-    ang2II = np.array([102.5916, 102.5916, 102.5916])
-    angVIII = np.array([105.8303, 105.8303, 105.8303])
-    # data for vdw
-    dOOIh_vdw = np.array([2.55835, 2.75684, 2.93328])
-    dOOII_vdw = np.array([2.57778, 2.77778, 2.95556])
-    dOOVIII_vdw = np.array([2.68693, 2.89540, 3.08071])
-    dOHIh_vdw = np.array([0.92560, 0.99741, 1.06125])
-    dOHII_vdw = np.array([0.92047, 0.99188, 1.05537])
-    dOHVIII_vdw = np.array([0.91813, 0.98936, 1.05268])
-    angIh_vdw = np.array([106.6896, 106.6896, 106.6896])
-    angII_vdw = np.array([106.8331, 106.8331, 106.8331])
-    ang2II_vdw = np.array([103.7740, 103.7740, 103.7740])
-    angVIII_vdw = np.array([105.4342, 105.4342, 105.4342])
+    VIh = np.array([1387.4413, 1736.0838, 2103.0147])  * (0.529177210903)**3  / 8 #DONE
+    VII = np.array([1640.8604, 2053.1832, 2487.1347])  * (0.529177210903)**3  / 12 #DONE
+    VVIII = np.array([805.9846, 1008.5161, 1221.6715]) * (0.529177210903)**3  / 8 #DONE
+    dOOIh = np.array([2.54295, 2.74025, 2.92111]) #DONE
+    dOOII = np.array([2.56640, 2.76551, 2.94804]) #DONE
+    dOOVIII = np.array([2.68694, 2.89541, 3.08651]) #DONE
+    dOHIh = np.array([0.97853, 1.05445, 1.12404]) #DONE
+    dOHII = np.array([0.94017, 1.01312, 1.07998]) #DONE
+    dOHVIII = np.array([0.89883, 0.96857, 1.03249]) #DONE
 
     plt.plot(VIh, dOOIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, dOOIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
+    #plt.plot(VIh, dOOIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
     plt.plot(VII, dOOII, marker='o', color='green', label=r'ice-II')
-    plt.plot(VII, dOOII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
+    #plt.plot(VII, dOOII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
     plt.plot(VVIII, dOOVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, dOOVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
+    #plt.plot(VVIII, dOOVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
     plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
     plt.ylabel(r"oxygen separation [$\AA$]", fontsize=12)
     plt.legend()
@@ -148,11 +133,11 @@ def plot_variation():
     plt.show()
 
     plt.plot(VIh, dOHIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, dOHIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
+    #plt.plot(VIh, dOHIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
     plt.plot(VII, dOHII, marker='o', color='green', label=r'ice-II')
-    plt.plot(VII, dOHII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
+    #plt.plot(VII, dOHII_vdw, marker='o', color='lime', label=r'ice-II (VdW)')
     plt.plot(VVIII, dOHVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, dOHVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
+    #plt.plot(VVIII, dOHVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
     plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
     plt.ylabel(r"bond length [$\AA$]", fontsize=12)
     plt.legend()
@@ -160,20 +145,6 @@ def plot_variation():
     plt.tight_layout()
     plt.show()
 
-    plt.plot(VIh, angIh, marker='o', color='blue', label=r'ice-I$h$')
-    plt.plot(VIh, angIh_vdw, marker='o', color='cyan', label=r'ice-I$h$ (VdW)')
-    plt.plot(VII, angII, marker='o', color='green', label=r'ice-II (1)')
-    plt.plot(VII, ang2II, marker='o', color='orange', label=r'ice-II (2)')
-    plt.plot(VII, angII_vdw, marker='o', color='lime', label=r'ice-II (1) (VdW)')
-    plt.plot(VII, ang2II_vdw, marker='o', color='yellow', label=r'ice-II (2) (VdW)')
-    plt.plot(VVIII, angVIII, marker='o', color='red', label=r'ice-VIII')
-    plt.plot(VVIII, angVIII_vdw, marker='o', color='magenta', label=r'ice-VIII (VdW)')
-    plt.xlabel(r"volume [$\AA^3$/molecule]", fontsize=12)
-    plt.ylabel("bond angle [deg]", fontsize=12)
-    plt.legend()
-    plt.grid(visible=True)
-    plt.tight_layout()
-    plt.show()
 
 def plot(filename, molecules):
     data = pd.read_csv(filename)
@@ -291,13 +262,13 @@ class Phase:
         E3_fit = vinet(V3, self.E03, self.V03, self.B03, self.B0_prime3)
 
         # Find the common tangent of the data between the three fits
-        initial_guess = [30, 24, -0.01]
+        initial_guess = [24, 20, -0.01]
         V1_t, V21_t, P12 = fsolve(self._common_tangent_equations_12, initial_guess)
 
-        initial_guess = [24, 19, -0.01]
+        initial_guess = [24, 20, -0.01]
         V23_t, V3_t, P23 = fsolve(self._common_tangent_equations_23, initial_guess)
 
-        initial_guess = [30, 19, -0.01]
+        initial_guess = [24, 20, -0.01]
         V13_t, V31_t, P13 = fsolve(self._common_tangent_equations_13, initial_guess)
 
         # Compute energies at transition volumes
@@ -408,13 +379,15 @@ class Phase:
 
     
 if __name__ == "__main__":
-    collect_data("iceIh-energies.txt", "iceIh-volumes.txt", "iceIh-data.txt")
-    collect_data("iceII-energies.txt", "iceII-volumes.txt", "iceII-data.txt")
-    collect_data("iceVIII-energies.txt", "iceVIII-volumes.txt", "iceVIII-data.txt")
+    #collect_data("iceIh-energies.txt", "iceIh-volumes.txt", "iceIh-data.txt")
+    #collect_data("iceII-energies.txt", "iceII-volumes.txt", "iceII-data.txt")
+    #collect_data("iceVIII-energies.txt", "iceVIII-volumes.txt", "iceVIII-data.txt")
     
-    fit_Vinet("iceIh-data.txt", "iceIh-params.txt", 8)
-    fit_Vinet("iceII-data.txt", "iceII-params.txt", 12)
-    fit_Vinet("iceVIII-data.txt", "iceVIII-params.txt", 8)
+    #fit_Vinet("iceIh-data.txt", "iceIh-params.txt", 8)
+    #fit_Vinet("iceII-data.txt", "iceII-params.txt", 12)
+    #fit_Vinet("iceVIII-data.txt", "iceVIII-params.txt", 8)
     
     ct = Phase("iceIh-params.txt", "iceII-params.txt", "iceVIII-params.txt")
     ct.common_tangent_triple("iceIh-data.txt", "iceII-data.txt", "iceVIII-data.txt", 8, 12, 8)
+    
+    #plot_variation()
